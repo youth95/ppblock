@@ -1,4 +1,5 @@
 import seedRandom from 'seedrandom';
+
 export enum Direction {
   Top = 'top',
   Left = 'left',
@@ -30,10 +31,10 @@ const init = (old?: (Shape | null)[][]) => {
   return newBoard;
 }
 
+
 export class Game {
   private AUTO_ID = 0;
   private random = seedRandom();
-  board: (Shape | null)[][] = init();
   private allShapes: Shape[] = [];
   static DEFAULT_SHAPES_POOL: Omit<Block, 'shape'>[][] = [
     /**
@@ -80,17 +81,21 @@ export class Game {
   ];
 
 
+  board: (Shape | null)[][] = init();
+  nextShape: Shape;
   constructor(seed?: string) {
     this.random = seedRandom(seed);
+    this.nextShape = this.createShapeInPool();
+    this.randomCreateShape();
   }
 
 
-  randomCreateShape(shapes = Game.DEFAULT_SHAPES_POOL, color?: string) {
-    const blocks = this.randomFetch(shapes);
+  randomCreateShape() {
+    const shape = this.nextShape;
     const index: number[][] = [];
     for (let i = 0; i < 8; i++) {
       for (let j = 0; j < 8; j++) {
-        if (blocks.every(
+        if (shape.blocks.every(
           ({ x, y }) =>
             x + j >= 0
             && y + i >= 0
@@ -103,30 +108,39 @@ export class Game {
         }
       }
     }
-    if (index.length) {
-      const r = () => Math.floor(this.random() * 200);
-      const [x, y] = this.randomFetch(index)!;
-      return this.createShape(x, y, blocks, color ?? `rgb(${r()},${r()},${r()})`);
+    if (index.length === 0) {
+      throw new Error('no empty');
     }
+    const [x, y] = this.randomFetch(index)!;
+    this.appendShape(shape, x, y);
+
+    this.nextShape = this.createShapeInPool();
   };
 
+  private createShapeInPool() {
+    const blocks = this.randomFetch(Game.DEFAULT_SHAPES_POOL);
+    const r = () => Math.floor(this.random() * 200);
+    const shape = this.createShape(blocks, `rgb(${r()},${r()},${r()})`);
+    return shape;
+  }
 
 
 
-  createShape(x: number, y: number, blocks: Omit<Block, 'shape'>[], color: string) {
+
+  createShape(blocks: Omit<Block, 'shape'>[], color: string) {
     const shape: Shape = { blocks: [], active: false, color: '', id: this.AUTO_ID++ };
     shape.blocks = blocks.map(b => ({ ...b, shape }));
     shape.color = color;
-    shape.blocks.forEach(b => {
-      b.x += x;
-      b.y += y;
-    });
-    for (const b of shape.blocks) {
-      this.board[b.y][b.x] = shape;
-    }
-    this.allShapes.push(shape);
     return shape;
   }
+
+  createShapeAndAppend(x: number, y: number, blocks: Omit<Block, 'shape'>[], color: string) {
+    const shape = this.createShape(blocks, color);
+    this.appendShape(shape, x, y);
+    return shape;
+  }
+
+
 
   move(dir: Direction) {
     this.activeAll();
@@ -171,6 +185,17 @@ export class Game {
       ...shape,
       blocks: shape.blocks.map(b => ({ ...b, shape: null })),
     }) : null))
+  }
+
+  private appendShape(shape: Shape, x: number, y: number) {
+    shape.blocks.forEach(b => {
+      b.x += x;
+      b.y += y;
+    });
+    for (const b of shape.blocks) {
+      this.board[b.y][b.x] = shape;
+    }
+    this.allShapes.push(shape);
   }
 
   private needRemove() {

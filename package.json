@@ -5,12 +5,14 @@
     "coverage": "vitest run --coverage"
   },
   "devDependencies": {
+    "@types/hammerjs": "^2.0.41",
     "@types/seedrandom": "^3.0.4",
     "@vitest/ui": "^0.28.4",
     "vite": "^4.1.1",
     "vitest": "^0.28.4"
   },
   "dependencies": {
+    "hammerjs": "^2.0.8",
     "seedrandom": "^3.0.5"
   }
 }

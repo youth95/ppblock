@@ -8,7 +8,7 @@ body {
   width: 100vw;
   height: 100vh;
   display: flex;
-  justify-content: center;
+  /* justify-content: center; */
   align-items: center;
   flex-direction: column;
 }
@@ -19,6 +19,24 @@ body {
   width: 320px;
   height: 320px;
   position: relative;
+}
+
+#next {
+  position: relative;
+  /* background-color: black; */
+  color: #fff;
+  width: 160px;
+  height: 160px;
+}
+
+#next-container {
+  display: flex;
+  /* width: 100%; */
+  justify-content: center;
+  align-items: center;
+  flex-direction: row;
+  transform: scale(0.5);
+
 }
 
 .block {

@@ -1,8 +1,8 @@
 import { Block, Direction, Game } from './game';
-let dir: Direction | null = null;
-
+import Hammer from 'hammerjs';
 
 const container = document.querySelector('#container') as HTMLDivElement;
+const h = new Hammer(window.document.body);
 
 const toDirection: Record<string, Direction> = {
   w: Direction.Top,
@@ -10,6 +10,13 @@ const toDirection: Record<string, Direction> = {
   s: Direction.Down,
   d: Direction.Right,
 }
+
+const htoDirection: Record<number, Direction> = {
+  8: Direction.Top,
+  16: Direction.Down,
+  2: Direction.Left,
+  4: Direction.Right,
+};
 
 let transitioning = false;
 container?.addEventListener('transitionstart', () => transitioning = true);
@@ -25,9 +32,22 @@ const clearOpacityDOM = () => {
 }
 
 window.addEventListener('keypress', ev => {
+  move(toDirection[ev.key]);
+});
+
+h.get('pan').set({ direction: Hammer.DIRECTION_ALL });
+h.on('panend', ev => {
+  const dir = htoDirection[ev.direction];
+  console.log(ev.direction);
+  if (dir) {
+    move(dir);
+  }
+})
+
+
+function move(dir: Direction) {
   if (!transitioning) {
     clearOpacityDOM();
-    dir = toDirection[ev.key];
     game.move(dir);
     setTimeout(() => {
       const removed = game.remove();
@@ -38,7 +58,6 @@ window.addEventListener('keypress', ev => {
           const dom = record.get(b);
           dom!.style.opacity = '0';
         });
-        dir = null;
         setTimeout(() => {
           game.randomCreateShape();
           // game.remove();
@@ -49,7 +68,7 @@ window.addEventListener('keypress', ev => {
       }
     }, 400);
   }
-});
+}
 
 function gameLoop() {
   render();
@@ -84,9 +103,29 @@ const render = () => {
       }
     }
   }
+  renderNext();
 }
 
-game.randomCreateShape();
+const renderNext = () => {
+  const container = document.getElementById('next')! as HTMLDivElement;
+  container.innerHTML = '';
+  const color = game.nextShape.color;
+  const blocks = game.nextShape.blocks;
+
+  for (const b of blocks) {
+    // let dom = record.get(b);
+    // if (!dom) {
+    const dom = document.createElement('div');
+    dom.className = 'block';
+    dom.style.left = `${b.x * 40}px`;
+    dom.style.top = `${b.y * 40}px`;
+    dom.style.backgroundColor = color;
+    // record.set(b, dom);
+    container.appendChild(dom);
+    // }
+  }
+}
+
 render();
 gameLoop();
 

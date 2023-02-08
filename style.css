@@ -11,7 +11,22 @@ body {
   /* justify-content: center; */
   align-items: center;
   flex-direction: column;
+  background-color: #000;
+  color: #fff;
 }
+
+.source {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  width: 100%;
+  font-size: 2rem;
+  border: solid 2px #fff;
+  border-bottom-width: 0px;
+  border-right-width: 0px;
+}
+
 
 #container {
   background-color: black;
@@ -19,6 +34,8 @@ body {
   width: 320px;
   height: 320px;
   position: relative;
+  border: solid 2px #fff;
+  margin: 0;
 }
 
 #next {
@@ -27,15 +44,17 @@ body {
   color: #fff;
   width: 160px;
   height: 160px;
+  border: solid 2px #fff;
+  border-bottom-width: 0px;
+  flex-shrink: 0;
+
 }
 
 #next-container {
   display: flex;
-  /* width: 100%; */
-  justify-content: center;
-  align-items: center;
-  flex-direction: row;
-  transform: scale(0.5);
+  justify-content: space-between;
+  /* align-items: center; */
+  /* flex-direction: row; */
 }
 
 .block {

@@ -9,12 +9,17 @@
   </head>
   <body>
     <div id="message">WASD 控制方向</div>
-    <div id="source">分数: 0</div>
-    <div id="next-container">
-      <div>Next:</div>
-      <div id="next"></div>
+    <div style="background-color: #000; padding: 2px">
+      <div id="next-container">
+        <div class="source" style="color: #fff">
+          <div>分数</div>
+          <div id="source">0</div>
+        </div>
+        <div id="next"></div>
+      </div>
+      <pre id="container"></pre>
     </div>
-    <pre id="container"></pre>
+
     <script src="./main.ts" type="module"></script>
   </body>
 </html>

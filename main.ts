@@ -13,7 +13,7 @@ const restart = () => {
   transitioning = false;
   source = 0;
   container.innerHTML = '';
-  document.getElementById('source')!.textContent = `分数: ${source}`;
+  document.getElementById('source')!.textContent = source.toString();
 }
 
 
@@ -69,7 +69,7 @@ function move(dir?: Direction) {
       const removed = game.remove();
       if (removed.length) {
         source += removed.length;
-        document.getElementById('source')!.textContent = `分数: ${source}`;
+        document.getElementById('source')!.textContent = source.toString();
         removed.forEach((b) => {
           const dom = record.get(b);
           dom!.style.opacity = '0';
@@ -142,11 +142,13 @@ const renderNext = () => {
   const color = game.nextShape.color;
   const blocks = game.nextShape.blocks;
 
+  const maxX = Math.max(...blocks.map(b => b.x));
+  const maxY = Math.max(...blocks.map(b => b.y));
   for (const b of blocks) {
     const dom = document.createElement('div');
     dom.className = 'block';
-    dom.style.left = `${b.x * 40}px`;
-    dom.style.top = `${b.y * 40}px`;
+    dom.style.left = `${(b.x + (maxX !== 3 ? 1 : 0)) * 40}px`;
+    dom.style.top = `${(b.y + (maxY !== 3 ? 1 : 0)) * 40}px`
     dom.style.backgroundColor = color;
     container.appendChild(dom);
   }

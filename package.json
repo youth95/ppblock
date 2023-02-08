@@ -2,7 +2,9 @@
   "scripts": {
     "test": "vitest",
     "test:ui": "vitest --ui",
-    "coverage": "vitest run --coverage"
+    "coverage": "vitest run --coverage",
+    "build": "vite build",
+    "start": "vite ."
   },
   "devDependencies": {
     "@types/hammerjs": "^2.0.41",

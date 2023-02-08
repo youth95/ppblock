@@ -27,7 +27,6 @@ body {
   border-right-width: 0px;
 }
 
-
 #container {
   background-color: black;
   color: #fff;
@@ -47,7 +46,6 @@ body {
   border: solid 2px #fff;
   border-bottom-width: 0px;
   flex-shrink: 0;
-
 }
 
 #next-container {
@@ -88,6 +86,38 @@ body {
   align-items: center;
 }
 
+.block-left {
+  width: 8px;
+  height: 8px;
+  background-color: #fff;
+  position: absolute;
+  left: -8px;
+}
+
+.block-right {
+  width: 8px;
+  height: 8px;
+  background-color: #fff;
+  position: absolute;
+  right: -8px;
+}
+
+.block-top {
+  width: 8px;
+  height: 8px;
+  background-color: #fff;
+  position: absolute;
+  top: -8px;
+}
+
+.block-bottom {
+  width: 8px;
+  height: 8px;
+  background-color: #fff;
+  position: absolute;
+  bottom: -8px;
+}
+
 .game-over::before {
-  content: "Game Over";
+  content: "游戏结束 点击重开";
 }

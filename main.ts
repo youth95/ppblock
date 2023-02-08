@@ -78,7 +78,6 @@ function move(dir?: Direction) {
         setTimeout(() => {
           try {
             game.randomCreateShape();
-
           } catch (error) {
             gameOver = true;
           }
@@ -120,6 +119,9 @@ const render = () => {
           let dom = record.get(b);
           if (!dom) {
             dom = document.createElement('div');
+            const count = document.createElement('div');
+            count.className = 'count';
+            dom.appendChild(count);
             container.appendChild(dom);
             dom.className = 'block';
             dom.style.backgroundColor = shape.color;
@@ -127,13 +129,46 @@ const render = () => {
           }
           dom.style.left = `${b.x * 40}px`;
           dom.style.top = `${b.y * 40}px`;
-          dom.textContent = b.shape.blocks.length.toString();
         });
 
       }
     }
   }
+  [game.nextShape, ...game.board.flat()].forEach(shape => shape?.blocks.forEach(createJoinInDOM));
   renderNext();
+}
+
+const createJoinInDOM = (b: Block) => {
+  let dom = record.get(b);
+  if (dom) {
+    dom.innerHTML = '';
+    const children: string[] = [];
+    if (b.shape.blocks.find(v => v.x === b.x + 1 && v.y === b.y)) {
+      // right
+      children.push('block-right');
+    }
+    if (b.shape.blocks.find(v => v.x === b.x - 1 && v.y === b.y)) {
+      // left
+      children.push('block-left');
+    }
+    if (b.shape.blocks.find(v => v.x === b.x && v.y === b.y + 1)) {
+      // bottom
+      children.push('block-bottom');
+    }
+    if (b.shape.blocks.find(v => v.x === b.x && v.y === b.y - 1)) {
+      // top
+      children.push('block-top');
+    }
+    children.forEach(className => {
+      const d = document.createElement('div');
+      d.className = className;
+      dom?.appendChild(d);
+    });
+    const count = document.createElement('div');
+    count.className = 'count';
+    dom.appendChild(count);
+    count.textContent = b.shape.blocks.length.toString();
+  }
 }
 
 const renderNext = () => {
@@ -142,17 +177,17 @@ const renderNext = () => {
   const color = game.nextShape.color;
   const blocks = game.nextShape.blocks;
 
-  const maxX = Math.max(...blocks.map(b => b.x));
-  const maxY = Math.max(...blocks.map(b => b.y));
   for (const b of blocks) {
     let dom = record.get(b);
     if (!dom) {
       const dom = document.createElement('div');
       dom.className = 'block';
       dom.style.left = `${(b.x + 4) * 40}px`;
-      dom.style.top = `${(b.y - 4) * 40}px`
+      dom.style.top = `${(b.y - 4) * 40}px`;
+      const count = document.createElement('div');
+      count.className = 'count';
+      dom.appendChild(count);
       dom.style.backgroundColor = color;
-      dom.textContent = b.shape.blocks.length.toString();
       container.appendChild(dom);
       record.set(b, dom);
     }
@@ -161,6 +196,8 @@ const renderNext = () => {
 }
 
 gameLoop();
+// render();
+game.board.flat().forEach(shape => shape?.blocks.forEach(createJoinInDOM));
 
 
 (window as any).game = game;

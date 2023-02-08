@@ -137,20 +137,26 @@ const render = () => {
 }
 
 const renderNext = () => {
-  const container = document.getElementById('next')! as HTMLDivElement;
-  container.innerHTML = '';
+  // const container = document.getElementById('next')! as HTMLDivElement;
+  // container.innerHTML = '';
   const color = game.nextShape.color;
   const blocks = game.nextShape.blocks;
 
   const maxX = Math.max(...blocks.map(b => b.x));
   const maxY = Math.max(...blocks.map(b => b.y));
   for (const b of blocks) {
-    const dom = document.createElement('div');
-    dom.className = 'block';
-    dom.style.left = `${(b.x + (maxX !== 3 ? 1 : 0)) * 40}px`;
-    dom.style.top = `${(b.y + (maxY !== 3 ? 1 : 0)) * 40}px`
-    dom.style.backgroundColor = color;
-    container.appendChild(dom);
+    let dom = record.get(b);
+    if (!dom) {
+      const dom = document.createElement('div');
+      dom.className = 'block';
+      dom.style.left = `${(b.x + 4) * 40}px`;
+      dom.style.top = `${(b.y - 4) * 40}px`
+      dom.style.backgroundColor = color;
+      dom.textContent = b.shape.blocks.length.toString();
+      container.appendChild(dom);
+      record.set(b, dom);
+    }
+
   }
 }
 

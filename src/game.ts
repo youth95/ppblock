@@ -38,6 +38,12 @@ export class Game {
   private allShapes: Shape[] = [];
   static DEFAULT_SHAPES_POOL: Omit<Block, 'shape'>[][] = [
     /**
+     * *
+     */
+    [
+      { x: 0, y: 0 },
+    ],
+    /**
      * **
      */
     [

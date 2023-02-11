@@ -178,6 +178,16 @@ export class Game {
 
 
   randomCreateShape() {
+    if (this.pos.length === 0) {
+      throw new Error('no empty');
+    }
+    const [x, y] = this.randomFetch(this.pos)!;
+    this.appendShape(this.nextShape, x, y);
+
+    this.nextShape = this.createShapeInPool();
+  };
+
+  get pos() {
     const shape = this.nextShape;
     const index: number[][] = [];
     for (let i = 0; i < 8; i++) {
@@ -195,14 +205,8 @@ export class Game {
         }
       }
     }
-    if (index.length === 0) {
-      throw new Error('no empty');
-    }
-    const [x, y] = this.randomFetch(index)!;
-    this.appendShape(shape, x, y);
-
-    this.nextShape = this.createShapeInPool();
-  };
+    return index;
+  }
 
   private createShapeInPool() {
     const blocks = this.randomFetch(Game.DEFAULT_SHAPES_POOL);

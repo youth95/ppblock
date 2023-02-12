@@ -4,6 +4,7 @@ import Hammer from 'hammerjs';
 export class Application {
   gameOver = false;
   game = new Game();
+  time = 0;
   record: WeakMap<Block, HTMLDivElement> = new WeakMap();
   transitioning = false;
   source = 0;
@@ -34,7 +35,26 @@ export class Application {
         this.restart();
       }
     });
+    window.addEventListener('keypress', ev => {
+      if (ev.key === ' ' && this.gameOver) {
+        this.restart();
+      }
+    });
+    setInterval(() => {
+      if (this.gameOver) {
+        return
+      }
+      this.time += 1;
+      this.renderTime();
+    }, 1000);
     (window as any).app = this;
+  }
+
+  private renderTime() {
+    const m = Math.floor(this.time / 60);
+    const s = Math.floor(this.time % 60);
+    document.getElementById('time')!.textContent = m.toString().padStart(2, '0') + ':' + s.toString().padStart(2, '0');
+
   }
 
   gameLoop() {
@@ -44,14 +64,17 @@ export class Application {
   }
 
   renderBoard() {
+    const els = [
+      '#next',
+      '.source',
+      '#container',
+      '#message',
+      '#title',
+    ];
     if (this.game.pos.length === 0) {
-      (document.querySelector('#next') as HTMLDivElement).style.borderColor = 'red';
-      (document.querySelector('.source') as HTMLDivElement).style.borderColor = 'red';
-      (document.querySelector('#container') as HTMLDivElement).style.borderColor = 'red';
+      els.forEach(selector => (document.querySelector(selector) as HTMLDivElement).style.borderColor = 'red');
     } else {
-      (document.querySelector('#next') as HTMLDivElement).style.borderColor = '#fff';
-      (document.querySelector('.source') as HTMLDivElement).style.borderColor = '#fff';
-      (document.querySelector('#container') as HTMLDivElement).style.borderColor = '#fff';
+      els.forEach(selector => (document.querySelector(selector) as HTMLDivElement).style.borderColor = '#fff');
     }
 
   }
@@ -62,16 +85,25 @@ export class Application {
     this.record = new WeakMap();
     this.transitioning = false;
     this.source = 0;
+    this.time = 0;
     this.container.innerHTML = '';
     document.getElementById('source')!.textContent = this.source.toString();
+    this.renderTime();
+
   }
 
   move(dir?: Direction) {
     if (!this.transitioning && dir && this.gameOver === false) {
       this.clearOpacityDOM();
-      this.game.move(dir);
-
-      setTimeout(() => {
+      const dis = this.game.move(dir);
+      const create = () => {
+        try {
+          this.game.randomCreateShape();
+        } catch (error) {
+          this.gameOver = true;
+        }
+      };
+      const removeAndCreate = () => {
         const removed = this.game.remove();
         if (removed.length) {
           this.source += removed.length;
@@ -81,21 +113,16 @@ export class Application {
             dom!.style.opacity = '0';
             dom!.style.transform = 'scale(0)'
           });
-          setTimeout(() => {
-            try {
-              this.game.randomCreateShape();
-            } catch (error) {
-              this.gameOver = true;
-            }
-          }, 300);
+          this.container.addEventListener('transitionend', create, { once: true });
         } else {
-          try {
-            this.game.randomCreateShape();
-          } catch (error) {
-            this.gameOver = true;
-          }
+          create();
         }
-      }, 400);
+      }
+      if (dis.filter(v => v !== 0).length) {
+        this.container.addEventListener('transitionend', removeAndCreate, { once: true });
+      } else {
+        removeAndCreate();
+      }
     }
   }
 
@@ -130,6 +157,9 @@ export class Application {
               this.container.appendChild(dom);
               dom.className = 'block';
               dom.style.backgroundColor = shape.color;
+              if (b.prop) {
+                dom.style.backgroundImage = 'url(image/apple.png)';
+              }
               this.record.set(b, dom);
             }
             dom.style.left = `${b.x * 40}px`;
@@ -146,7 +176,6 @@ export class Application {
   createJoinInDOM = (b: Block) => {
     let dom = this.record.get(b);
     if (dom) {
-      dom.innerHTML = '';
       const children: string[] = [];
       if (b.shape.blocks.find(v => v.x === b.x + 1 && v.y === b.y)) {
         // right
@@ -164,15 +193,16 @@ export class Application {
         // top
         children.push('block-top');
       }
-      children.forEach(className => {
-        const d = document.createElement('div');
-        d.className = className;
-        dom?.appendChild(d);
-      });
-      const count = document.createElement('div');
-      count.className = 'count';
-      dom.appendChild(count);
-      count.textContent = b.shape.blocks.length.toString();
+      if (dom.dataset.beforeJoin !== children.join(' ')) {
+        dom.innerHTML = '';
+        children.forEach(className => {
+          const d = document.createElement('div');
+          d.className = className;
+          d.style.backgroundColor = b.shape.color;
+          dom?.appendChild(d);
+        });
+        dom.dataset.beforeJoin = children.join(' ')
+      }
     }
   }
 
@@ -187,9 +217,9 @@ export class Application {
         dom.className = 'block';
         dom.style.left = `${(b.x + 4) * 40}px`;
         dom.style.top = `${(b.y - 4) * 40}px`;
-        const count = document.createElement('div');
-        count.className = 'count';
-        dom.appendChild(count);
+        if (b.prop) {
+          dom.style.backgroundImage = 'url(image/apple.png)';
+        }
         dom.style.backgroundColor = color;
         this.container.appendChild(dom);
         this.record.set(b, dom);

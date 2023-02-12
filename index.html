@@ -8,16 +8,25 @@
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <div id="message">WASD 控制方向</div>
     <div style="background-color: #000; padding: 2px">
+      <div id="title">萍萍方块<span id="version"></span></div>
       <div id="next-container">
         <div class="source" style="color: #fff">
-          <div>分数</div>
+          <div id="time">00:00</div>
           <div id="source">0</div>
         </div>
         <div id="next"></div>
       </div>
       <pre id="container"></pre>
+      <div id="message">
+        <p>操作: WASD 控制方向</p>
+        <p>
+          <img src="image/apple.png" alt="" />: 消除时消除其他<img
+            src="image/apple.png"
+            alt=""
+          />
+        </p>
+      </div>
     </div>
 
     <script src="./src/main.ts" type="module"></script>

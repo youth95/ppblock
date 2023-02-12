@@ -10,7 +10,12 @@ export enum Direction {
 export interface Block {
   x: number;
   y: number;
+  prop?: BlockProp;
   shape: Shape;
+}
+
+export enum BlockProp {
+  Apple = 'apple',
 }
 
 export interface Shape {
@@ -36,7 +41,29 @@ export class Game {
   private AUTO_ID = 0;
   private random = seedRandom();
   private allShapes: Shape[] = [];
-  static DEFAULT_SHAPES_POOL: Omit<Block, 'shape'>[][] = [
+  static DEFAULT_SHAPES_POOL: Omit<Block, 'shape' | 'prop'>[][] = [
+    /**
+     * *
+     * **
+     *  *
+     */
+    [
+      { x: 0, y: 0 },
+      { x: 0, y: 1 },
+      { x: 1, y: 1 },
+      { x: 1, y: 2 },
+    ],
+    /**
+     *  *
+     * **
+     * *
+     */
+    [
+      { x: 1, y: 0 },
+      { x: 0, y: 1 },
+      { x: 1, y: 1 },
+      { x: 0, y: 2 },
+    ],
     /**
      * *
      */
@@ -166,6 +193,13 @@ export class Game {
       { x: 2, y: 1 },
     ],
   ];
+  static DEFAULT_SHAPE_COLOR_POOL: string[] = [
+    '#fffc03',
+    '#002bff',
+    '#09fc13',
+    '#f88208',
+    '#00feff',
+  ];
 
 
   board: (Shape | null)[][] = init();
@@ -212,7 +246,16 @@ export class Game {
     const blocks = this.randomFetch(Game.DEFAULT_SHAPES_POOL);
     const r = () => Math.floor(this.random() * 200);
     const shape = this.createShape(blocks, `rgb(${r()},${r()},${r()})`);
+    this.createPropInShape(shape);
     return shape;
+  }
+
+  private createPropInShape(shape: Shape) {
+    if (this.randomBoolean(0.4)) {
+      const b = this.randomFetch(shape.blocks);
+      console.log(b);
+      b.prop = BlockProp.Apple;
+    }
   }
 
 
@@ -301,6 +344,19 @@ export class Game {
         row.forEach((shape, j) => remove.add(shape!.blocks.find(b => b.x === i && b.y === j)!))
       }
     }
+    // 触发道具效果
+    remove.forEach(b => {
+      // apple效果: 删除其他apple
+      if (b.prop === BlockProp.Apple) {
+        this.allShapes.forEach(shape => {
+          shape.blocks.forEach(b => {
+            if (b.prop === BlockProp.Apple) {
+              remove.add(b);
+            }
+          })
+        });
+      }
+    })
     return Array.from(remove);
   }
 
@@ -380,6 +436,7 @@ export class Game {
     this.allShapes.forEach(shape => shape.active = true);
   }
   private randomFetch = <T>(arr: T[]) => arr[Math.floor(this.random() * arr.length)];
+  private randomBoolean = (v = 0.5) => this.random() <= v;
 
   private dis(shape: Shape, dir: Direction, minDis = new WeakMap<Shape, number>()) {
     const axis = (): 'x' | 'y' => dir === Direction.Down || dir === Direction.Top ? 'y' : 'x';

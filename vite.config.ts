@@ -1,11 +1,7 @@
 import { defineConfig } from "vitest/config";
 const commitHash = require('child_process')
   .execSync('git rev-parse --short HEAD')
-  .toString();
-
-console.log(commitHash);
-
-console.log('testt');
+  .toString() ?? process.env.VITE_VERCEL_GIT_COMMIT_SHA;
 
 export default defineConfig({
   test: {

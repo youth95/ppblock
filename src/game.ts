@@ -16,6 +16,8 @@ export interface Block {
 
 export enum BlockProp {
   Apple = 'apple',
+  Banana = 'banana',
+  Cherry = 'cherry',
 }
 
 export interface Shape {
@@ -200,6 +202,11 @@ export class Game {
     '#f88208',
     '#00feff',
   ];
+  static DEFAULT_BLOCK_PROP_POOL: BlockProp[] = [
+    BlockProp.Apple,
+    BlockProp.Banana,
+    BlockProp.Cherry,
+  ]
 
 
   board: (Shape | null)[][] = init();
@@ -251,10 +258,10 @@ export class Game {
   }
 
   private createPropInShape(shape: Shape) {
-    if (this.randomBoolean(0.4)) {
+    if (this.randomBoolean(0.7)) {
+      const prop = this.randomFetch(Game.DEFAULT_BLOCK_PROP_POOL);
       const b = this.randomFetch(shape.blocks);
-      console.log(b);
-      b.prop = BlockProp.Apple;
+      b.prop = prop;
     }
   }
 
@@ -344,6 +351,7 @@ export class Game {
         row.forEach((shape, j) => remove.add(shape!.blocks.find(b => b.x === i && b.y === j)!))
       }
     }
+
     // 触发道具效果
     remove.forEach(b => {
       // apple效果: 删除其他apple
@@ -353,6 +361,24 @@ export class Game {
             if (b.prop === BlockProp.Apple) {
               remove.add(b);
             }
+          })
+        });
+      }
+      // banana效果: 分裂其shape
+      if (b.prop === BlockProp.Banana) {
+        const shape = b.shape;
+        shape.blocks.forEach(b => {
+          if (b.prop === BlockProp.Apple) {
+            remove.add(b);
+          }
+        })
+        this.splitShapeWithBlocks(shape, shape.blocks.map(b => [b]));
+      }
+      // cherry效果: 清除屏幕
+      if (b.prop === BlockProp.Cherry) {
+        this.allShapes.forEach(shape => {
+          shape.blocks.forEach(b => {
+            remove.add(b);
           })
         });
       }
@@ -368,12 +394,15 @@ export class Game {
   private splitShape(shape: Shape): Shape[] {
     const roots = new Set([...shape.blocks]);
     const blocks: Block[][] = [];
-    const shapes: Shape[] = [];
     while (roots.size) {
       const b = roots.values().next().value;
       blocks.push(this.dfs(b, roots));
     }
+    return this.splitShapeWithBlocks(shape, blocks);
+  }
 
+  private splitShapeWithBlocks(shape: Shape, blocks: Block[][]) {
+    const shapes: Shape[] = [];
     for (let i = 0; i < blocks.length; i++) {
       if (i === 0) {
         shape.blocks = blocks[i];
@@ -394,7 +423,6 @@ export class Game {
       }
     }
     return shapes;
-
   }
 
   private dfs(b: Block, roots: Set<Block>): Block[] {

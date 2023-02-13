@@ -1,4 +1,4 @@
-import { Block, Direction, Game } from './game';
+import { Block, BlockProp, Direction, Game } from './game';
 import Hammer from 'hammerjs';
 
 export class Application {
@@ -134,6 +134,12 @@ export class Application {
     })
   }
 
+  propImageMapper: Record<BlockProp, string> = {
+    [BlockProp.Apple]: 'image/apple.png',
+    [BlockProp.Banana]: 'image/banana.png',
+    [BlockProp.Cherry]: 'image/cherry.png',
+  }
+
   render = () => {
     if (this.gameOver) {
       if (!document.querySelector('.game-over')) {
@@ -158,7 +164,7 @@ export class Application {
               dom.className = 'block';
               dom.style.backgroundColor = shape.color;
               if (b.prop) {
-                dom.style.backgroundImage = 'url(image/apple.png)';
+                dom.style.backgroundImage = `url(${this.propImageMapper[b.prop]})`;
               }
               this.record.set(b, dom);
             }
@@ -218,7 +224,7 @@ export class Application {
         dom.style.left = `${(b.x + 4) * 40}px`;
         dom.style.top = `${(b.y - 4) * 40}px`;
         if (b.prop) {
-          dom.style.backgroundImage = 'url(image/apple.png)';
+          dom.style.backgroundImage = `url(${this.propImageMapper[b.prop]})`;
         }
         dom.style.backgroundColor = color;
         this.container.appendChild(dom);
